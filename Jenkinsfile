@@ -3,47 +3,48 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'haritharavichandran/my-go-app'
-        DOCKER_HUB_CREDENTIALS = credentials('dockerhub-creds') // Jenkins credentials ID
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/Haritha200111/Web-App.git'
+                git branch: 'main', url: 'https://github.com/Haritha200111/Web-App.git'
             }
         }
 
         stage('Test') {
             steps {
-                sh 'go test ./...'
+                bat 'go test ./...'
             }
         }
 
         stage('Lint Dockerfile') {
             steps {
-                sh 'docker run --rm -i hadolint/hadolint < Dockerfile'
+                bat 'docker run --rm -i hadolint/hadolint < Dockerfile'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${IMAGE_NAME}:latest ."
+                bat "docker build -t %IMAGE_NAME%:latest ."
             }
         }
 
         stage('Push to DockerHub') {
             steps {
-                sh """
-                    echo "${DOCKER_HUB_CREDENTIALS_PSW}" | docker login -u "${DOCKER_HUB_CREDENTIALS_USR}" --password-stdin
-                    docker push ${IMAGE_NAME}:latest
-                """
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_HUB_CREDENTIALS_USR', passwordVariable: 'DOCKER_HUB_CREDENTIALS_PSW')]) {
+                    bat """
+                        echo %DOCKER_HUB_CREDENTIALS_PSW% | docker login -u %DOCKER_HUB_CREDENTIALS_USR% --password-stdin
+                        docker push %IMAGE_NAME%:latest
+                    """
+                }
             }
         }
 
         stage('Deploy with Docker Compose') {
             steps {
-                sh 'docker-compose down || true'
-                sh 'docker-compose up -d'
+                bat 'docker-compose down || exit 0'  // handle failure gracefully on Windows
+                bat 'docker-compose up -d'
             }
         }
     }

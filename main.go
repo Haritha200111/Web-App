@@ -11,7 +11,7 @@ func main() {
 	router.GET("/", func(c *gin.Context) {
 		c.String(200, "Hello, World!")
 	})
-	router.Run(":8080")
+	router.Run(":8081")
 	// Note: Make sure to import necessary packages like "github.com/gin-gonic/gin" if you use Gin framework.
 	// This is just a placeholder; you can replace it with your actual application logic.
 	// For example, you might want to load configurations, initialize services, etc.
