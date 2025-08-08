@@ -1,0 +1,7 @@
+version: "3"
+services:
+  web:
+    image: haritharavichandran/my-go-app:latest
+    build: .
+    ports:
+      - "8081:8081"
