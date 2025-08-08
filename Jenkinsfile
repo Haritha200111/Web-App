@@ -41,11 +41,18 @@ pipeline {
             }
         }
 
-        stage('Deploy with Docker Compose') {
+        // stage('Deploy with Docker Compose') {
+        //     steps {
+        //         bat 'docker-compose down || exit 0'  // handle failure gracefully on Windows
+        //         bat 'docker-compose up -d'
+        //     }
+        // }
+        stage('Deploy to Kubernetes') {
             steps {
-                bat 'docker-compose down || exit 0'  // handle failure gracefully on Windows
-                bat 'docker-compose up -d'
+                bat 'kubectl apply -f k8s/deployment.yaml'
+                bat 'kubectl apply -f k8s/service.yaml'
             }
         }
+
     }
 }
